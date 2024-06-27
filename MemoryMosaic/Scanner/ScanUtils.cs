@@ -1,7 +1,8 @@
 ﻿using System.Diagnostics;
+using MemoryMosaic.Extensions;
 using Serilog;
 
-namespace MemoryMosaic;
+namespace MemoryMosaic.Scanner;
 
 public abstract class ScanUtils {
     private const double PercentageTotal = 100.0;

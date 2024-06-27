@@ -1,4 +1,5 @@
-﻿using MemoryMosaic;
+﻿using MemoryMosaic.Extensions;
+using MemoryMosaic.Scanner;
 using Processory;
 using Processory.Services;
 using Serilog;

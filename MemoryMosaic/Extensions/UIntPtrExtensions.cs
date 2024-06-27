@@ -1,17 +1,16 @@
-﻿namespace MemoryMosaic;
+namespace MemoryMosaic.Extensions;
 
 /// <summary>
-/// Provides extension methods for the IntPtr class.
+/// Provides extension methods for the UIntPtr class.
 /// </summary>
-// Reference: https://stackoverflow.com/a/14339534
-public static class IntPtrExtensions {
+public static class UIntPtrExtensions {
     /// <summary>
     /// Returns the value of the pointer as a hexadecimal string with a fixed length of 8 characters.
     /// </summary>
     /// <param name="pointer">The pointer.</param>
     /// <returns>The value of the pointer as a hexadecimal string.</returns>
-    public static string ToHex(this IntPtr pointer) {
-        return pointer.ToInt64().ToString("X8");
+    public static string ToHex(this nuint pointer) {
+        return pointer.ToUInt64().ToString("X8");
     }
 
     #region Methods: Arithmetics
@@ -22,8 +21,8 @@ public static class IntPtrExtensions {
     /// <param name="pointer">The pointer.</param>
     /// <param name="value">The value to decrement by.</param>
     /// <returns>The decremented pointer.</returns>
-    public static IntPtr Decrement(this IntPtr pointer, int value) {
-        return Increment(pointer, -value);
+    public static nuint Decrement(this nuint pointer, int value) {
+        return pointer.Increment(-value);
     }
 
     /// <summary>
@@ -32,23 +31,23 @@ public static class IntPtrExtensions {
     /// <param name="pointer">The pointer.</param>
     /// <param name="value">The value to decrement by.</param>
     /// <returns>The decremented pointer.</returns>
-    public static IntPtr Decrement(this IntPtr pointer, long value) {
-        return Increment(pointer, -value);
+    public static nuint Decrement(this nuint pointer, long value) {
+        return pointer.Increment(-value);
     }
 
     /// <summary>
-    /// Decrements the value of the pointer by the specified IntPtr value.
+    /// Decrements the value of the pointer by the specified UIntPtr value.
     /// </summary>
     /// <param name="pointer">The pointer.</param>
     /// <param name="value">The value to decrement by.</param>
     /// <returns>The decremented pointer.</returns>
-    public static IntPtr Decrement(this IntPtr pointer, IntPtr value) {
-        switch (IntPtr.Size) {
-            case sizeof(int):
-                return new IntPtr(pointer.ToInt32() - value.ToInt32());
+    public static nuint Decrement(this nuint pointer, nuint value) {
+        switch (nuint.Size) {
+            case sizeof(uint):
+                return new nuint(pointer.ToUInt32() - value.ToUInt32());
 
             default:
-                return new IntPtr(pointer.ToInt64() - value.ToInt64());
+                return new nuint(pointer.ToUInt64() - value.ToUInt64());
         }
     }
 
@@ -58,14 +57,14 @@ public static class IntPtrExtensions {
     /// <param name="pointer">The pointer.</param>
     /// <param name="value">The value to increment by.</param>
     /// <returns>The incremented pointer.</returns>
-    public static IntPtr Increment(this IntPtr pointer, int value) {
+    public static nuint Increment(this nuint pointer, int value) {
         unchecked {
-            switch (IntPtr.Size) {
-                case sizeof(int):
-                    return new IntPtr(pointer.ToInt32() + value);
+            switch (nuint.Size) {
+                case sizeof(uint):
+                    return new nuint(pointer.ToUInt32() + (uint)value);
 
                 default:
-                    return new IntPtr(pointer.ToInt64() + value);
+                    return new nuint(pointer.ToUInt64() + (ulong)value);
             }
         }
     }
@@ -76,31 +75,34 @@ public static class IntPtrExtensions {
     /// <param name="pointer">The pointer.</param>
     /// <param name="value">The value to increment by.</param>
     /// <returns>The incremented pointer.</returns>
-    public static IntPtr Increment(this IntPtr pointer, long value) {
+    public static nuint Increment(this nuint pointer, long value) {
         unchecked {
-            switch (IntPtr.Size) {
-                case sizeof(int):
-                    return new IntPtr((int)(pointer.ToInt32() + value));
+            switch (nuint.Size) {
+                case sizeof(uint):
+                    return new nuint((uint)(pointer.ToUInt32() + value));
 
                 default:
-                    return new IntPtr(pointer.ToInt64() + value);
+                    if (value >= 0)
+                        return new nuint(pointer.ToUInt64() + (ulong)value);
+                    else
+                        return new nuint(pointer.ToUInt64() - (ulong)-value);
             }
         }
     }
 
     /// <summary>
-    /// Increments the value of the pointer by the specified IntPtr value.
+    /// Increments the value of the pointer by the specified UIntPtr value.
     /// </summary>
     /// <param name="pointer">The pointer.</param>
     /// <param name="value">The value to increment by.</param>
     /// <returns>The incremented pointer.</returns>
-    public static IntPtr Increment(this IntPtr pointer, IntPtr value) {
+    public static nuint Increment(this nuint pointer, nuint value) {
         unchecked {
-            switch (IntPtr.Size) {
-                case sizeof(int):
-                    return new IntPtr(pointer.ToInt32() + value.ToInt32());
+            switch (nuint.Size) {
+                case sizeof(uint):
+                    return new nuint(pointer.ToUInt32() + value.ToUInt32());
                 default:
-                    return new IntPtr(pointer.ToInt64() + value.ToInt64());
+                    return new nuint(pointer.ToUInt64() + value.ToUInt64());
             }
         }
     }
@@ -115,17 +117,17 @@ public static class IntPtrExtensions {
     /// <param name="left">The pointer.</param>
     /// <param name="right">The value to compare.</param>
     /// <returns>A signed integer that indicates the relative values of the pointer and the value.</returns>
-    public static int CompareTo(this IntPtr left, int right) {
+    public static int CompareTo(this nuint left, int right) {
         return left.CompareTo((uint)right);
     }
 
     /// <summary>
-    /// Compares the value of the pointer to the specified IntPtr value.
+    /// Compares the value of the pointer to the specified UIntPtr value.
     /// </summary>
     /// <param name="left">The pointer.</param>
     /// <param name="right">The value to compare.</param>
     /// <returns>A signed integer that indicates the relative values of the pointer and the value.</returns>
-    public static int CompareTo(this IntPtr left, IntPtr right) {
+    public static int CompareTo(this nuint left, nuint right) {
         if (left.ToUInt64() > right.ToUInt64())
             return 1;
 
@@ -141,7 +143,7 @@ public static class IntPtrExtensions {
     /// <param name="left">The pointer.</param>
     /// <param name="right">The value to compare.</param>
     /// <returns>A signed integer that indicates the relative values of the pointer and the value.</returns>
-    public static int CompareTo(this IntPtr left, uint right) {
+    public static int CompareTo(this nuint left, uint right) {
         if (left.ToUInt64() > right)
             return 1;
 
@@ -160,8 +162,8 @@ public static class IntPtrExtensions {
     /// </summary>
     /// <param name="pointer">The pointer.</param>
     /// <returns>A 32-bit unsigned integer that represents the value of the pointer.</returns>
-    public static unsafe uint ToUInt32(this IntPtr pointer) {
-        return (uint)((void*)pointer);
+    public static unsafe uint ToUInt32(this nuint pointer) {
+        return (uint)(void*)pointer;
     }
 
     /// <summary>
@@ -169,8 +171,8 @@ public static class IntPtrExtensions {
     /// </summary>
     /// <param name="pointer">The pointer.</param>
     /// <returns>A 64-bit unsigned integer that represents the value of the pointer.</returns>
-    public static unsafe ulong ToUInt64(this IntPtr pointer) {
-        return (ulong)((void*)pointer);
+    public static unsafe ulong ToUInt64(this nuint pointer) {
+        return (ulong)(void*)pointer;
     }
 
     #endregion
@@ -183,8 +185,8 @@ public static class IntPtrExtensions {
     /// <param name="pointer">The pointer.</param>
     /// <param name="value">The value to compare.</param>
     /// <returns>true if the value of the pointer is equal to the value; otherwise, false.</returns>
-    public static bool Equals(this IntPtr pointer, int value) {
-        return pointer.ToInt32() == value;
+    public static bool Equals(this nuint pointer, int value) {
+        return pointer.ToUInt32() == value;
     }
 
     /// <summary>
@@ -193,8 +195,8 @@ public static class IntPtrExtensions {
     /// <param name="pointer">The pointer.</param>
     /// <param name="value">The value to compare.</param>
     /// <returns>true if the value of the pointer is equal to the value; otherwise, false.</returns>
-    public static bool Equals(this IntPtr pointer, long value) {
-        return pointer.ToInt64() == value;
+    public static bool Equals(this nuint pointer, long value) {
+        return pointer.ToUInt64() == (ulong)value;
     }
 
     /// <summary>
@@ -203,7 +205,7 @@ public static class IntPtrExtensions {
     /// <param name="left">The pointer.</param>
     /// <param name="ptr2">The pointer to compare.</param>
     /// <returns>true if the value of the pointer is equal to the value of the specified pointer; otherwise, false.</returns>
-    public static bool Equals(this IntPtr left, IntPtr ptr2) {
+    public static bool Equals(this nuint left, nuint ptr2) {
         return left == ptr2;
     }
 
@@ -213,7 +215,7 @@ public static class IntPtrExtensions {
     /// <param name="pointer">The pointer.</param>
     /// <param name="value">The value to compare.</param>
     /// <returns>true if the value of the pointer is equal to the value; otherwise, false.</returns>
-    public static bool Equals(this IntPtr pointer, uint value) {
+    public static bool Equals(this nuint pointer, uint value) {
         return pointer.ToUInt32() == value;
     }
 
@@ -223,7 +225,7 @@ public static class IntPtrExtensions {
     /// <param name="pointer">The pointer.</param>
     /// <param name="value">The value to compare.</param>
     /// <returns>true if the value of the pointer is equal to the value; otherwise, false.</returns>
-    public static bool Equals(this IntPtr pointer, ulong value) {
+    public static bool Equals(this nuint pointer, ulong value) {
         return pointer.ToUInt64() == value;
     }
 
@@ -233,7 +235,7 @@ public static class IntPtrExtensions {
     /// <param name="left">The pointer.</param>
     /// <param name="right">The pointer to compare.</param>
     /// <returns>true if the value of the pointer is greater than or equal to the value of the specified pointer; otherwise, false.</returns>
-    public static bool GreaterThanOrEqualTo(this IntPtr left, IntPtr right) {
+    public static bool GreaterThanOrEqualTo(this nuint left, nuint right) {
         return left.CompareTo(right) >= 0;
     }
 
@@ -243,7 +245,7 @@ public static class IntPtrExtensions {
     /// <param name="left">The pointer.</param>
     /// <param name="right">The pointer to compare.</param>
     /// <returns>true if the value of the pointer is less than or equal to the value of the specified pointer; otherwise, false.</returns>
-    public static bool LessThanOrEqualTo(this IntPtr left, IntPtr right) {
+    public static bool LessThanOrEqualTo(this nuint left, nuint right) {
         return left.CompareTo(right) <= 0;
     }
 
@@ -257,13 +259,13 @@ public static class IntPtrExtensions {
     /// <param name="pointer">The pointer.</param>
     /// <param name="value">The pointer value to perform the AND operation with.</param>
     /// <returns>A new pointer that represents the result of the bitwise AND operation.</returns>
-    public static IntPtr And(this IntPtr pointer, IntPtr value) {
-        switch (IntPtr.Size) {
-            case sizeof(int):
-                return new IntPtr(pointer.ToInt32() & value.ToInt32());
+    public static nuint And(this nuint pointer, nuint value) {
+        switch (nuint.Size) {
+            case sizeof(uint):
+                return new nuint(pointer.ToUInt32() & value.ToUInt32());
 
             default:
-                return new IntPtr(pointer.ToInt64() & value.ToInt64());
+                return new nuint(pointer.ToUInt64() & value.ToUInt64());
         }
     }
 
@@ -272,13 +274,13 @@ public static class IntPtrExtensions {
     /// </summary>
     /// <param name="pointer">The pointer.</param>
     /// <returns>A new pointer that represents the result of the bitwise NOT operation.</returns>
-    public static IntPtr Not(this IntPtr pointer) {
-        switch (IntPtr.Size) {
-            case sizeof(int):
-                return new IntPtr(~pointer.ToInt32());
+    public static nuint Not(this nuint pointer) {
+        switch (nuint.Size) {
+            case sizeof(uint):
+                return new nuint(~pointer.ToUInt32());
 
             default:
-                return new IntPtr(~pointer.ToInt64());
+                return new nuint(~pointer.ToUInt64());
         }
     }
 
@@ -288,13 +290,13 @@ public static class IntPtrExtensions {
     /// <param name="pointer">The pointer.</param>
     /// <param name="value">The pointer value to perform the OR operation with.</param>
     /// <returns>A new pointer that represents the result of the bitwise OR operation.</returns>
-    public static IntPtr Or(this IntPtr pointer, IntPtr value) {
-        switch (IntPtr.Size) {
-            case sizeof(int):
-                return new IntPtr(pointer.ToInt32() | value.ToInt32());
+    public static nuint Or(this nuint pointer, nuint value) {
+        switch (nuint.Size) {
+            case sizeof(uint):
+                return new nuint(pointer.ToUInt32() | value.ToUInt32());
 
             default:
-                return new IntPtr(pointer.ToInt64() | value.ToInt64());
+                return new nuint(pointer.ToUInt64() | value.ToUInt64());
         }
     }
 
@@ -304,13 +306,13 @@ public static class IntPtrExtensions {
     /// <param name="pointer">The pointer.</param>
     /// <param name="value">The pointer value to perform the XOR operation with.</param>
     /// <returns>A new pointer that represents the result of the bitwise XOR operation.</returns>
-    public static IntPtr Xor(this IntPtr pointer, IntPtr value) {
-        switch (IntPtr.Size) {
-            case sizeof(int):
-                return new IntPtr(pointer.ToInt32() ^ value.ToInt32());
+    public static nuint Xor(this nuint pointer, nuint value) {
+        switch (nuint.Size) {
+            case sizeof(uint):
+                return new nuint(pointer.ToUInt32() ^ value.ToUInt32());
 
             default:
-                return new IntPtr(pointer.ToInt64() ^ value.ToInt64());
+                return new nuint(pointer.ToUInt64() ^ value.ToUInt64());
         }
     }
 

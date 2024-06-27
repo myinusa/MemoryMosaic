@@ -1,16 +1,18 @@
 ﻿using System.Diagnostics;
-using System.Runtime.InteropServices;
-using MemoryMosaic;
 using Processory;
 using Serilog;
 
-namespace MemoryMosaic;
+namespace MemoryMosaic.Scanner;
+
+public interface IModuleScanner {
+    void ScanModulesForRTTIClassNames();
+}
 
 public class AddressContainer {
     public string? Name { get; internal set; }
-    public UIntPtr InitialAddress { get; set; }
-    public UIntPtr AddressValue { get; set; }
-    public UIntPtr EndAddress { get; internal set; }
+    public nuint InitialAddress { get; set; }
+    public nuint AddressValue { get; set; }
+    public nuint EndAddress { get; internal set; }
     public int NoOfAddresses { get; internal set; }
 }
 
@@ -37,7 +39,7 @@ public class ModuleScanner : ScanUtils, IModuleScanner {
     }
 
     private void EnsureValidProcessHandle() {
-        if (ProcessoryClient.ProcessHandle == IntPtr.Zero) {
+        if (ProcessoryClient.ProcessHandle == nint.Zero) {
             throw new InvalidOperationException("Invalid Process Handle");
         }
     }
@@ -70,14 +72,14 @@ public class ModuleScanner : ScanUtils, IModuleScanner {
 
                 uint pointerUINT = ProcessoryClient.MemoryReader.Read<uint>((nuint)pointer);
 
-                var pointerTest = ProcessoryClient.MemoryReader.Read<UIntPtr>((nuint)address);
+                var pointerTest = ProcessoryClient.MemoryReader.Read<nuint>((nuint)address);
 
                 string className = GetFirstRTTIClassName(pointer);
-                if (ProcessoryClient.AddressHelper.IsValidPointer(pointerTest, out UIntPtr endPtr)) {
+                if (ProcessoryClient.AddressHelper.IsValidPointer(pointerTest, out nuint endPtr)) {
                     keyValuePairs.Add(address.ToString("X"), new List<AddressContainer> {
                         new() {
                             Name = className,
-                            InitialAddress = (UIntPtr)address,
+                            InitialAddress = (nuint)address,
                             AddressValue = pointerTest,
                             EndAddress = endPtr,
                         }

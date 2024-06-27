@@ -1,9 +1,9 @@
 using Serilog;
 
-namespace MemoryMosaic;
+namespace MemoryMosaic.Scanner;
 
 public class HelperScanner {
-    private static readonly ILogger ScanLogger = Serilog.Log.ForContext<HelperScanner>();
+    private static readonly ILogger ScanLogger = Log.ForContext<HelperScanner>();
 
     public static void WriteclassNameContainersToCsv(Dictionary<string, List<ClassNameContainer>> rttiClassNames, string fileName) {
         string timestamp = DateTime.Now.ToString("yyyyMMdd-HHmmss");
@@ -46,7 +46,7 @@ public class HelperScanner {
     public void RemoveDuplicateAddressValues(Dictionary<string, List<AddressContainer>> keyValuePairs) {
         ScanLogger.Information("Removing duplicate entries based on AddressValue");
         // Dictionary to keep track of seen AddressValues and their corresponding keys
-        var seenAddressValues = new Dictionary<UIntPtr, string>();
+        var seenAddressValues = new Dictionary<nuint, string>();
 
         // List to store keys of keyValuePairs that need to be removed
         var keysToRemove = new List<string>();
