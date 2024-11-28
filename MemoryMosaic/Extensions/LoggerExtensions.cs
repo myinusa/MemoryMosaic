@@ -1,5 +1,5 @@
-using System.Runtime.CompilerServices;
 using Serilog;
+using System.Runtime.CompilerServices;
 
 // https://stackoverflow.com/questions/29470863/serilog-output-enrich-all-messages-with-methodname-from-which-log-entry-was-ca
 namespace MemoryMosaic.Extensions;
