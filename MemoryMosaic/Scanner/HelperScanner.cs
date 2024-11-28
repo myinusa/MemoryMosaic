@@ -19,7 +19,7 @@ public class HelperScanner {
         foreach (var pair in rttiClassNames) {
             foreach (var container in pair.Value) {
                 // Write each record
-                writer.WriteLine($"{pair.Key:X},{container.Address},{container.PatternValue}");
+                writer.WriteLine($"{pair.Key},{container.Address:X},{container.PatternValue}");
             }
         }
     }
