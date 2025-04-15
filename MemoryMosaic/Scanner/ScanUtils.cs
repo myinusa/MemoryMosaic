@@ -1,6 +1,6 @@
-﻿using MemoryMosaic.Extensions;
+﻿using System.Diagnostics;
+using MemoryMosaic.Extensions;
 using Serilog;
-using System.Diagnostics;
 
 namespace MemoryMosaic.Scanner;
 
