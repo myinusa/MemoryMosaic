@@ -56,8 +56,8 @@ public class ModuleScanner : ScanUtils, IModuleScanner {
         ScanMemoryAddresses(elementCount, progressUpdateInterval, stopwatch);
         LogScanCompletion(stopwatch);
 
-        HelperScanner.WriteKeyValuePairsToCsv(keyValuePairs, "Key-Value-Pairs-22.csv");
-        HelperScanner.WriteclassNameContainersToCsv(rttiClassNames, "RTTI-Class-Names-22.csv");
+        HelperScanner.WriteKeyValuePairsToCsv(keyValuePairs, "Key-Value-Pairs.csv");
+        HelperScanner.WriteclassNameContainersToCsv(rttiClassNames, "RTTI-Class-Names.csv");
     }
 
     private void ScanMemoryAddresses(int elementCount, int progressUpdateInterval, Stopwatch stopwatch) {

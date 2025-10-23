@@ -32,7 +32,7 @@ namespace MemoryMosaic {
         }
 
         public void InitializeApplication() {
-            ScanForProcessesAndModules(true, "2022");
+            ScanForProcessesAndModules(true, "2020");
         }
 
         public void Run() {

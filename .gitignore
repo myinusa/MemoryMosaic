@@ -131,3 +131,4 @@ docs/html
 docs/latex
 output-git-staged.txt
 **/data/**.csv
+*.csv
