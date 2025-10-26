@@ -25,6 +25,14 @@ public abstract class ScanUtils {
         // Logger.Information("Keys Found: {KeyCount} | Distinct Keys: {KeyDistinct}", keyValuePairs.Count, keyValuePairs.Keys.Distinct().Count());
     }
 
+    public static void LogProgress(int current, int total, Stopwatch stopwatch,
+    Dictionary<string, List<ClassNameContainer>> classes, int validPointers, int rttiFound) {
+        double percent = (double)current / total * 100;
+        Logger.Here().Information(
+            "Progress: {Percent:F2}% ({Current}/{Total}) | Time: {Time}s | Valid Pointers: {Valid} | RTTI Found: {RTTI} | Unique Classes: {Classes}",
+            percent, current, total, stopwatch.Elapsed.TotalSeconds, validPointers, rttiFound, classes.Count);
+    }
+
     public static void LogScanStart(int moduleSize, int numberOfElements) {
         Logger.Here().Information("Module Size: {ModuleSize} bytes", moduleSize);
         Logger.Here().Information("Number of elements: {NumberOfElements:N0}", numberOfElements);
