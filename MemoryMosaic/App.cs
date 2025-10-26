@@ -23,16 +23,16 @@ namespace MemoryMosaic {
         private void ScanForProcessesAndModules(bool start, string year) {
             if (!start) return;
 
-            if (!processoryClient.ProcessService.ProcessHandle.MainWindowTitle.Contains(year)) {
-                Log.Here().Error("MainWindowTitle does not contain {Year}", year);
-                Log.Here().Debug("MainWindowTitle: {Title}", processoryClient.ProcessService.ProcessHandle.MainWindowTitle);
-                return;
-            }
+            // if (!processoryClient.ProcessService.ProcessHandle.MainWindowTitle.Contains(year)) {
+            //     Log.Here().Error("MainWindowTitle does not contain {Year}", year);
+            //     Log.Here().Debug("MainWindowTitle: {Title}", processoryClient.ProcessService.ProcessHandle.MainWindowTitle);
+            //     return;
+            // }
             StartModuleScan(true);
         }
 
         public void InitializeApplication() {
-            ScanForProcessesAndModules(true, "2020");
+            ScanForProcessesAndModules(true, "2026");
         }
 
         public void Run() {
