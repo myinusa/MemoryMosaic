@@ -1,3 +1,4 @@
+using System.Text;
 using Serilog;
 
 namespace MemoryMosaic.Scanner;
@@ -9,7 +10,8 @@ public class HelperScanner {
         string timestamp = DateTime.Now.ToString("yyyyMMdd-HHmmss");
         string fileNameWithTimestamp = $"{timestamp}-{fileName}";
 
-        string projectRoot = Directory.GetParent(Environment.CurrentDirectory).FullName;
+        string projectRoot = Directory.GetParent(Environment.CurrentDirectory)?.FullName
+            ?? Environment.CurrentDirectory;
         string filePath = Path.Combine(projectRoot, fileNameWithTimestamp);
 
         using var writer = new StreamWriter(filePath);
@@ -17,10 +19,16 @@ public class HelperScanner {
         writer.WriteLine("Name,Address,Pattern");
 
         foreach (var pair in rttiClassNames) {
-            foreach (var container in pair.Value) {
-                // Write each record
-                writer.WriteLine($"{pair.Key},{container.Address:X},{container.PatternValue}");
+            var representative = GetDistinctClassNameContainers(pair.Value)
+                .OrderBy(container => container.Address)
+                .FirstOrDefault();
+
+            if (representative is null) {
+                continue;
             }
+
+            writer.WriteLine(
+                $"{FormatCsvField(pair.Key)},{FormatCsvField(representative.Address.ToString("X"))},{representative.PatternValue}");
         }
     }
 
@@ -28,7 +36,8 @@ public class HelperScanner {
         string timestamp = DateTime.Now.ToString("yyyyMMdd-HHmmss");
         string fileNameWithTimestamp = $"{timestamp}-{fileName}";
 
-        string projectRoot = Directory.GetParent(Environment.CurrentDirectory).FullName;
+        string projectRoot = Directory.GetParent(Environment.CurrentDirectory)?.FullName
+            ?? Environment.CurrentDirectory;
         string filePath = Path.Combine(projectRoot, fileNameWithTimestamp);
 
         using var writer = new StreamWriter(filePath);
@@ -38,12 +47,13 @@ public class HelperScanner {
         foreach (var pair in keyValuePairs) {
             foreach (var container in pair.Value) {
                 // Write each record
-                writer.WriteLine($"{container.Name},{container.InitialAddress:X},{container.AddressValue:X},{container.EndAddress:X},{container.NoOfAddresses}");
+                writer.WriteLine(
+                    $"{FormatCsvField(container.Name)},{FormatCsvField(container.InitialAddress.ToString("X"))},{FormatCsvField(container.AddressValue.ToString("X"))},{FormatCsvField(container.EndAddress.ToString("X"))},{FormatCsvField(container.NoOfAddresses.ToString())}");
             }
         }
     }
 
-    public void RemoveDuplicateAddressValues(Dictionary<string, List<AddressContainer>> keyValuePairs) {
+    public static void RemoveDuplicateAddressValues(Dictionary<string, List<AddressContainer>> keyValuePairs) {
         ScanLogger.Information("Removing duplicate entries based on AddressValue");
         // Dictionary to keep track of seen AddressValues and their corresponding keys
         var seenAddressValues = new Dictionary<nuint, string>();
@@ -72,5 +82,42 @@ public class HelperScanner {
         }
 
         ScanLogger.Information("Removed {Count} duplicate entries based on AddressValue.", keysToRemove.Distinct().Count());
+    }
+
+    private static IEnumerable<ClassNameContainer> GetDistinctClassNameContainers(IEnumerable<ClassNameContainer> containers) {
+        var seen = new HashSet<ulong>();
+
+        foreach (var container in containers) {
+            if (seen.Add(container.Address)) {
+                yield return container;
+            }
+        }
+    }
+
+    private static string FormatCsvField(string? value) {
+        string sanitized = SanitizeForCsv(value);
+
+        if (sanitized.IndexOfAny(new[] { '"', ',', '\n', '\r' }) >= 0) {
+            sanitized = sanitized.Replace("\"", "\"\"");
+            return $"\"{sanitized}\"";
+        }
+
+        return sanitized;
+    }
+
+    private static string SanitizeForCsv(string? value) {
+        if (string.IsNullOrEmpty(value)) {
+            return string.Empty;
+        }
+
+        var builder = new StringBuilder(value.Length);
+
+        foreach (char character in value) {
+            if (character >= ' ' && character <= '~') {
+                builder.Append(character);
+            }
+        }
+
+        return builder.Length == 0 ? string.Empty : builder.ToString();
     }
 }
