@@ -8,7 +8,7 @@ namespace MemoryMosaic {
     public static class Program {
 
         private static void EntityMemoryServices(IServiceCollection services) {
-            services.AddSingleton(_ => new ProcessoryClient("fm"));
+            services.AddSingleton(_ => new ProcessoryClient(processName: "fm", moduleName: "game_plugin.dll"));
             services.AddSingleton<IModuleScanner, ModuleScanner>();
         }
 
